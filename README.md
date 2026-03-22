@@ -5,41 +5,41 @@
 1. Вход на сервер.
 
 2. Убедимся в наличии контейнеров (и правильности их наименований для скрипта):
-проверка контейнеров:
-docker ps --filter "name=amnezia-awg"
-docker ps --filter "name=amnezia-awg2" (если установлен протокол 2.0)
-проверка HS (хэндшейк'ов)
-docker exec amnezia-awg /usr/bin/wg show all latest-handshakes
-docker exec amnezia-awg2 /usr/bin/wg show all latest-handshakes
-проверка фильтрации (по скрипту):
-docker exec amnezia-awg2 /usr/bin/wg show all latest-handshakes | awk '$3 > 0 {print $3}' | sort -nr | head -n 1
+<br>проверка контейнеров: </br>
+<code>docker ps --filter "name=amnezia-awg"</code>
+<code>docker ps --filter "name=amnezia-awg2" (если установлен протокол 2.0)</code>
+<br>проверка HS (хэндшейк'ов): </br>
+<code>docker exec amnezia-awg /usr/bin/wg show all latest-handshakes</code>
+<code>docker exec amnezia-awg2 /usr/bin/wg show all latest-handshakes</code>
+<br>проверка фильтрации (по скрипту): </br>
+<code>docker exec amnezia-awg2 /usr/bin/wg show all latest-handshakes | awk '$3 > 0 {print $3}' | sort -nr | head -n 1</code>
 
-2. Добавление файла скрипта:
-sudo nano /usr/local/bin/awg_watchdog.sh
-проверить что создался скрипт:
-ls -l /usr/local/bin/awg_watchdog.sh
-быстрый просмотр содержимого (без редактирования):
-cat /usr/local/bin/awg_watchdog.sh
+3. Добавление файла скрипта: </br>
+<code>sudo nano /usr/local/bin/awg_watchdog.sh</code>
+<br>проверить что создался скрипт: </br>
+<code>ls -l /usr/local/bin/awg_watchdog.sh</code>
+<br>быстрый просмотр содержимого (без редактирования): </br>
+<code>cat /usr/local/bin/awg_watchdog.sh</code>
 
-3. Делаем скрипт исполняемым:
-sudo chmod +x /usr/local/bin/awg_watchdog.sh
+4. Делаем скрипт исполняемым: </br>
+<code>sudo chmod +x /usr/local/bin/awg_watchdog.sh</code>
 
-4. Подготовка логов:
-sudo touch /var/log/awg_watchdog.log
-sudo chmod 666 /var/log/awg_watchdog.log
-проверка что файл лог создался:
-ls -l /var/log/awg_watchdog.log
+5. Подготовка логов: </br>
+<code>sudo touch /var/log/awg_watchdog.log</code>
+<code>sudo chmod 666 /var/log/awg_watchdog.log</code>
+<br>проверка что файл лог создался: </br>
+<code>ls -l /var/log/awg_watchdog.log</code>
 
-5. Ручной запуск (для отладки перед тем как вешать процесс по крон):
-sudo /usr/local/bin/awg_watchdog.sh
+6. Ручной запуск (для отладки перед тем как вешать процесс по крон): </br>
+<code>sudo /usr/local/bin/awg_watchdog.sh</code>
 
-6. Настройка автозапуска скрипта:
-sudo crontab -e (nano)
-добавление скрипта:
-*/2 * * * * /usr/local/bin/awg_watchdog.sh > /dev/null 2>&1
+7. Настройка автозапуска скрипта: </br>
+<code>sudo crontab -e (nano)</code>
+<br>добавление скрипта: </br>
+<code>*/2 * * * * /usr/local/bin/awg_watchdog.sh > /dev/null 2>&1</code>
 
-Дополнительно:
-просмотр лога:
-cat /var/log/awg_watchdog.log
-просмотр в реальном времени:
-tail -f /var/log/awg_watchdog.log
+Дополнительно: </br>
+просмотр лога: </br>
+<code>cat /var/log/awg_watchdog.log</code>
+<br>просмотр в реальном времени: </br>
+<code>tail -f /var/log/awg_watchdog.log</code>
