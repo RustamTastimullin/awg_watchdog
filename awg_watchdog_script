@@ -1,15 +1,28 @@
 #!/bin/bash
 
-# --- Настройки ---
 # --- Настройки времени (Екатеринбург UTC+5) ---
 export TZ="Asia/Yekaterinburg"
 
+# --- Настройки Telegram бота ---
+TG_TOKEN="PUT_YOUT_TOKEN_HERE"
+TG_CHAT_TO="PUT_CHAT_ID_TO"
+TG_URL="https://api.telegram.org/bot${TG_TOKEN}/sendMessage?"
+
+# ---Другие настройки ---
 AWG_CONTAINER="amnezia-awg2"
 AWG_LEGACY_CONTAINER="amnezia-awg"
 MAX_AGE=150
 RESTART_LIMIT=3
 LOG_FILE="/var/log/awg_watchdog.log"
 STOP_FLAG="/tmp/awg_restart_attempts_count"
+
+# Функция отправки в Telegram
+send_tg() {
+    local MSG="$1"
+    curl -s -X POST "$TG_URL" \
+        -d "chat_id=$TG_CHAT_TO" \
+        -d "text=AWG_2.0_server: $MSG" > /dev/null
+}
 
 # Функция получения хендшейка (возвращает 0, если пусто)
 get_last_hs() {
@@ -19,13 +32,16 @@ get_last_hs() {
 
 LAST_HS=$(get_last_hs)
 NOW=$(date +%s)
+DT=$(date '+%Y-%m-%d %H:%M:%S')
 DIFF=$(( NOW - LAST_HS ))
 
 # 1. ПРОВЕРКА: Если связь есть (Handshake свежий)
 if [[ "$LAST_HS" -gt 0 && "$DIFF" -lt "$MAX_AGE" ]]; then
     if [[ -f "$STOP_FLAG" ]]; then
         rm -f "$STOP_FLAG"
-        echo "$(date '+%Y-%m-%d %H:%M:%S') - СВЯЗЬ ВОССТАНОВЛЕНА. Счетчик сброшен." >> "$LOG_FILE"
+		 MSG="[$DT] СВЯЗЬ ВОССТАНОВЛЕНА. Счетчик сброшен."
+        echo "$MSG" >> "$LOG_FILE"
+        send_tg "$MSG"
     fi
     exit 0
 fi
@@ -36,8 +52,11 @@ ATTEMPTS=$(cat "$STOP_FLAG" 2>/dev/null || echo 0)
 if [[ "$ATTEMPTS" -ge "$RESTART_LIMIT" ]]; then
     # Если это ровно RESTART_LIMIT, запишем в лог один раз о провале
     if [[ "$ATTEMPTS" -eq "$RESTART_LIMIT" ]]; then
-        echo "$(date '+%Y-%m-%d %H:%M:%S') - ОШИБКА: Лимит попыток ($RESTART_LIMIT) исчерпан. Рестарты остановлены." >> "$LOG_FILE"
-        echo $(( ATTEMPTS + 1 )) > "$STOP_FLAG" # Увеличим до 4, чтобы больше не писать это сообщение
+		MSG="[$DT] ОШИБКА: Лимит попыток ($RESTART_LIMIT) исчерпан."
+        echo "$MSG" >> "$LOG_FILE"
+        send_tg "$MSG"
+		# Технический шаг - проитерируем до 4, чтобы больше не писать это сообщение
+        echo $(( ATTEMPTS + 1 )) > "$STOP_FLAG"
     fi
     exit 0
 fi
@@ -46,6 +65,10 @@ fi
 NEW_ATTEMPTS=$(( ATTEMPTS + 1 ))
 echo "$NEW_ATTEMPTS" > "$STOP_FLAG"
 
-echo "$(date '+%Y-%m-%d %H:%M:%S') - Попытка $NEW_ATTEMPTS: Связь потеряна ($DIFF сек). Рестарт контейнера..." >> "$LOG_FILE"
+MSG="[$DT] Попытка $NEW_ATTEMPTS: Связь потеряна (HS: $DIFF). Рестарт..."
+echo "$MSG" >> "$LOG_FILE"
+# Уведомлять каждом рестарте
+send_tg "$MSG"
+
 docker restart "$AWG_CONTAINER"
 docker restart "$AWG_LEGACY_CONTAINER"
