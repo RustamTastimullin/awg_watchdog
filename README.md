@@ -40,10 +40,9 @@
 6. Ручной запуск (для отладки перед тем как вешать процесс по крон): </br>
 <code>sudo /usr/local/bin/awg_watchdog.sh</code>
 
-7. Настройка автозапуска скрипта: </br>
+7. Настройка автозапуска скрипта (с блоком процесса чтобы избежать гонок): </br>
 <code>sudo crontab -e (nano)</code>
-<br>добавление скрипта: </br>
-<code>*/2 * * * * /usr/local/bin/awg_watchdog.sh > /dev/null 2>&1</code>
+<code>*/3 * * * * /usr/bin/flock -n /tmp/awg_watchdog.lock /usr/local/bin/awg_watchdog.sh > /dev/null 2>&1</code>
 
 Дополнительно: </br>
 просмотр лога: </br>
