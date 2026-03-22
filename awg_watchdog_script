@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # --- Настройки ---
-CONTAINER="amnezia-awg2"
+# --- Настройки времени (Екатеринбург UTC+5) ---
+export TZ="Asia/Yekaterinburg"
+
+AWG_CONTAINER="amnezia-awg2"
+AWG_LEGACY_CONTAINER="amnezia-awg"
 MAX_AGE=150
 RESTART_LIMIT=3
 LOG_FILE="/var/log/awg_watchdog.log"
@@ -9,7 +13,7 @@ STOP_FLAG="/tmp/awg_restart_attempts_count"
 
 # Функция получения хендшейка (возвращает 0, если пусто)
 get_last_hs() {
-    HS=$(docker exec "$CONTAINER" /usr/bin/wg show all latest-handshakes 2>/dev/null | awk '$3 > 0 {print $3}' | sort -nr | head -n 1)
+    HS=$(docker exec "$AWG_CONTAINER" /usr/bin/wg show all latest-handshakes 2>/dev/null | awk '$3 > 0 {print $3}' | sort -nr | head -n 1)
     echo "${HS:-0}"
 }
 
@@ -43,4 +47,5 @@ NEW_ATTEMPTS=$(( ATTEMPTS + 1 ))
 echo "$NEW_ATTEMPTS" > "$STOP_FLAG"
 
 echo "$(date '+%Y-%m-%d %H:%M:%S') - Попытка $NEW_ATTEMPTS: Связь потеряна ($DIFF сек). Рестарт контейнера..." >> "$LOG_FILE"
-docker restart "$CONTAINER"
+docker restart "$AWG_CONTAINER"
+docker restart "$AWG_LEGACY_CONTAINER"
