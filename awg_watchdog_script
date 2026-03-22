@@ -11,7 +11,7 @@ TG_URL="https://api.telegram.org/bot${TG_TOKEN}/sendMessage?"
 # ---Другие настройки ---
 AWG_CONTAINER="amnezia-awg2"
 AWG_LEGACY_CONTAINER="amnezia-awg"
-MAX_AGE=150
+MAX_AGE=210
 RESTART_LIMIT=3
 LOG_FILE="/var/log/awg_watchdog.log"
 STOP_FLAG="/tmp/awg_restart_attempts_count"
@@ -67,7 +67,7 @@ echo "$NEW_ATTEMPTS" > "$STOP_FLAG"
 
 MSG="[$DT] Попытка $NEW_ATTEMPTS: Связь потеряна (HS: $DIFF). Рестарт..."
 echo "$MSG" >> "$LOG_FILE"
-# Уведомлять каждом рестарте
+# Уведомлять о каждом рестарте
 send_tg "$MSG"
 
 docker restart "$AWG_CONTAINER"
