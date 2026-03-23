@@ -39,7 +39,7 @@ DIFF=$(( NOW - LAST_HS ))
 if [[ "$LAST_HS" -gt 0 && "$DIFF" -lt "$MAX_AGE" ]]; then
     if [[ -f "$STOP_FLAG" ]]; then
         rm -f "$STOP_FLAG"
-		 MSG="[$DT] СВЯЗЬ ВОССТАНОВЛЕНА. Счетчик сброшен."
+		 MSG="[$DT] СВЯЗЬ ВОССТАНОВЛЕНА."
         echo "$MSG" >> "$LOG_FILE"
         send_tg "$MSG"
     fi
@@ -65,7 +65,7 @@ fi
 NEW_ATTEMPTS=$(( ATTEMPTS + 1 ))
 echo "$NEW_ATTEMPTS" > "$STOP_FLAG"
 
-MSG="[$DT] Попытка $NEW_ATTEMPTS: Связь потеряна (HS: $DIFF). Рестарт..."
+MSG="[$DT] Связь потеряна. Попытка рестарта $NEW_ATTEMPTS из $RESTART_LIMIT"
 echo "$MSG" >> "$LOG_FILE"
 # Уведомлять о каждом рестарте
 send_tg "$MSG"
