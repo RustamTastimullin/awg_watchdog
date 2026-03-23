@@ -65,7 +65,7 @@ fi
 NEW_ATTEMPTS=$(( ATTEMPTS + 1 ))
 echo "$NEW_ATTEMPTS" > "$STOP_FLAG"
 
-MSG="[$DT] Связь потеряна. Попытка рестарта $NEW_ATTEMPTS из $RESTART_LIMIT"
+MSG="[$DT] Связь потеряна. Попытка рестарта $NEW_ATTEMPTS из $RESTART_LIMIT."
 echo "$MSG" >> "$LOG_FILE"
 # Уведомлять о каждом рестарте
 send_tg "$MSG"
