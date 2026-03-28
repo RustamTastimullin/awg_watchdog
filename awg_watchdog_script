@@ -10,7 +10,6 @@ TG_URL="https://api.telegram.org/bot${TG_TOKEN}/sendMessage?"
 
 # ---Другие настройки ---
 AWG_CONTAINER="amnezia-awg2"
-AWG_LEGACY_CONTAINER="amnezia-awg"
 MAX_AGE=210
 RESTART_LIMIT=3
 LOG_FILE="/var/log/awg_watchdog.log"
@@ -71,4 +70,3 @@ echo "$MSG" >> "$LOG_FILE"
 send_tg "$MSG"
 
 docker restart "$AWG_CONTAINER"
-docker restart "$AWG_LEGACY_CONTAINER"
